@@ -3,7 +3,6 @@ from mainGameState import Game
 
 
 if __name__ == '__main__':
-    if __name__ == '__main__':
     settings = {
         'size': DIS_SIZE,
         'fps' : FPS
