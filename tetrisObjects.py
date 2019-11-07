@@ -5,6 +5,7 @@ block, piece and board
 
 import pygame as pg
 from pyVariables import *
+from tetrisBoardStates import*
 
 class Block:
     def __init__(self, x, y, state=0, color=BLUE):
@@ -92,7 +93,6 @@ class Piece:
     def draw_piece(self, screen):
         for row in range(len(self.piece_map)):
             for block in self.piece_map[row]:
-                #print(row, block, block.x, block.y, block.state)
                 block.draw_block(screen, block.color)
 
     def check_collision(self, board_obj):
@@ -101,24 +101,18 @@ class Piece:
                 if block.state == 1:
                     BLOCK_X = int((block.x - X_OFFSET)/SCALE)
                     BLOCK_Y = int((block.y - Y_OFFSET)/SCALE)
-                    print(BLOCK_X, BLOCK_Y)
-                    if BLOCK_Y+1 > 19:
-                        self.handle_landing(board_obj, BLOCK_X, BLOCK_Y)
+                    if BLOCK_Y+1 > TETRIS_BOARD_HEIGHT-1:
+                        self.lock_piece(board_obj, BLOCK_X, BLOCK_Y)
                     elif board_obj.board_state[BLOCK_Y+1][BLOCK_X].state == 0 and \
                         block.y < BOTTOM_BOUND-SCALE:
-                        print('STATE: ', end=' ')
-                        print(board_obj.board_state[BLOCK_Y][BLOCK_X].state)
                         self.piece_gravity()
                     else:
-                        print('landed')
-                        self.handle_landing(board_obj, BLOCK_X, BLOCK_Y)
-                        print('STATE: ', end=' ')
-                        print(board_obj.board_state[BLOCK_Y][BLOCK_X].state)
+                        self.lock_piece(board_obj, BLOCK_X, BLOCK_Y)
 
-    def handle_landing(self, board_obj, x, y):
+    def lock_piece(self, board_obj, x, y):
         self.landed = True
-        print(y, x)
         board_obj.board_state[y][x].state = 1
+        board_obj.line_clear_check()
 
 
 
@@ -130,8 +124,10 @@ class Board:
         self.width = width
         self.height = height
         self.board_state = []
-        self.create_blank_board()
+        self.board_state = BOARD_1
+        #self.create_blank_board()
         self.print_board()
+
 
     def __str__(self):
         return self.board_state
@@ -145,7 +141,6 @@ class Board:
                       block.state, end=' ')
             print()
 
-
     def create_blank_board(self):
         for row in range(self.height):
             self.board_state.append(list())
@@ -155,15 +150,31 @@ class Board:
                                                    state=0,
                                                    color=BLUE))
 
+    def load_board_state(self):
+        '''Loads outside board state for challenges and testing purposes'''
+        pass
 
     def draw_board(self, screen):
         for row in range(len(self.board_state)):
             for block in self.board_state[row]:
                 block.draw_block(screen, RED, True)
 
+    def line_clear_check(self):
+        for row in range(len(self.board_state)):
+            filled = True
+            for block in self.board_state[row]:
+                if block.state == 0:
+                    filled = False
+            if filled == True:
+                for block in self.board_state[row]:
+                    block.state = 0
+                self.move_rows_down(row)
+            else:
+                pass
 
-
-    def lock_piece(self, piece_object):
-        for row in range(len(piece_object.piece_map)):
-            for block in piece_object.piece_map:
-                self.board_state[piece_object.x][piece_object.y].state = 1
+    def move_rows_down(self, row_cleared):
+        for row in range(row_cleared, 0, -1):
+            for block in range(len(self.board_state[row])):
+                block_state = self.board_state[row][block].state
+                self.board_state[row][block].state = 0
+                self.board_state[row+1][block].state = block_state
