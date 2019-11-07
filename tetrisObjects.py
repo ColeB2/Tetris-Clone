@@ -112,8 +112,6 @@ class Piece:
                     else:
                         print('landed')
                         self.handle_landing(board_obj, BLOCK_X, BLOCK_Y)
-                        #self.landed = True
-                        #board_obj.board_state[BLOCK_Y][BLOCK_X].state = 1
                         print('STATE: ', end=' ')
                         print(board_obj.board_state[BLOCK_Y][BLOCK_X].state)
 
