@@ -13,8 +13,8 @@ class Game(States):
         States.__init__(self)
         self.next = 'menu'
         self.board = Board()
-        self.piece = Piece(shape=BLOCK)
-        self.next_piece = Piece(shape=BLOCK)
+        self.piece = Piece(shape=BLOCK_PIECE)
+        self.next_piece = Piece(shape=BLOCK_PIECE)
 
     def cleanup(self):
         print('cleaning up Game state stuff')
@@ -25,7 +25,7 @@ class Game(States):
     def game_logic(self):
         if self.piece.landed == True:
             self.piece = self.next_piece
-            self.next_piece = Piece(shape=BLOCK)
+            self.next_piece = Piece(shape=BLOCK_PIECE)
             self.piece.landed = False
             self.piece.check_collision(self.board)
             self.board.print_board()
@@ -33,15 +33,15 @@ class Game(States):
 
     def get_event(self, event):
         if event.type == pg.KEYDOWN:
-            self.piece.move_piece(event)
+            self.piece.move_piece(event, self.board)
             print('Game State keydown')
         elif event.type == pg.MOUSEBUTTONDOWN:
             self.done = True
 
     def update(self, screen, dt):
         self.draw(screen)
-        self.piece.check_collision(self.board)
-        self.game_logic()
+        #self.piece.check_collision(self.board)
+        #self.game_logic()
 
 
     def draw(self, screen):
