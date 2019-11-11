@@ -40,8 +40,8 @@ class Game(States):
 
     def update(self, screen, dt):
         self.draw(screen)
-        #self.piece.check_collision(self.board)
-        #self.game_logic()
+        self.piece.check_collision(self.board)
+        self.game_logic()
 
 
     def draw(self, screen):
