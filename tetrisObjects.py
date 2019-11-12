@@ -72,101 +72,58 @@ class Piece:
             for block in self.piece_map[row]:
                 block.y += 1
 
-    def piece_boundary(self, min_point, direction):
-        '''
-        min-point: 0 if going right, DIS_X if going left
-        direction: 'left' or 'right'
-        Returns farthest point shape contains in either left or right direction.
-        Used to determine whether we can move the shape further in desired
-        direction or whether part of the piece has hit a boundary wall
-        '''
-        farthest_point = min_point
-        for row in range(len(self.piece_map)):
-            for block in self.piece_map[row]:
-                if direction == 'left':
-                    if block.x < farthest_point and block.state == 1:
-                        farthest_point = block.x
-                elif direction == 'right':
-                    if block.x > farthest_point and block.state == 1:
-                        farthest_point = block.x
-                elif direction == 'down':
-                    if block.y > farthest_point and block.state == 1:
-                        farthest_point = block.y
-        print('FARTHEST_POINT: ', str(farthest_point))
-        return farthest_point
-
-    def lateral_collision(self, direction, board_obj):
-        for row in range(len(self.piece_map)):
-            open_slot = True
-            for block in self.piece_map[row]:
-                if direction == 'left':
-                    if block.grid_x == 0:
-                        pass
-                        #open_slot = False
-                    elif block.grid_x-1 == 1:
-                        pass
-                    elif board_obj.board_state[block.y][block.x-1].state == 1:
-                        open_slot = False
-                    else:
-                        pass
-                if direction == 'right':
-                    if block.x == TETRIS_BOARD_WIDTH-1:
-                        print(block.x)
-                        pass
-                    elif block.x + 1 >= TETRIS_BOARD_WIDTH-1:
-                        pass
-                    elif board_obj.board_state[block.y][block.x+1].state == 1:
-                        open_slot = False
-                    else:
-                        pass
-
-        print(open_slot)
-        return open_slot
-
-
-
-    def move_piece(self, event, board_obj):
-        if event.key == pg.K_d or event.key == pg.K_RIGHT:
-            if self.piece_boundary(LEFT_BOUND, 'right') == RIGHT_BOUND:
-                print('RIGHT BOUNDARY HIT')
-                pass
-            else:
-                for row in range(len(self.piece_map)):
-                    for block in self.piece_map[row]:
-                        block.x += 1
-        if event.key == pg.K_a or event.key == pg.K_LEFT:
-            if self.piece_boundary(RIGHT_BOUND, 'left') == LEFT_BOUND:
-                print('LEFT BOUNDARY HIT')
-                pass
-            else:
-                for row in range(len(self.piece_map)):
-                    for block in self.piece_map[row]:
-                        block.x -= 1
-
-        if event.key == pg.K_s or event.key == pg.K_DOWN:
-            self.check_collision(board_obj)
-
-    def draw_piece(self, screen):
-        for row in range(len(self.piece_map)):
-            for block in self.piece_map[row]:
-                block.draw_block(screen, block.color)
-
-    def check_collision(self, board_obj):
+    def check_lateral_collision(self, direction, board_obj):
         move_piece = True
         for row in range(len(self.piece_map)):
             for block in self.piece_map[row]:
-                if block.state == 1:
-                    if block.y+1 > BOTTOM_BOUND:
-                        move_piece = False
-                        self.lock_piece(board_obj)
-                    elif board_obj.open_space(x=block.x, y=block.y+1) and \
-                        block.y < BOTTOM_BOUND:
-                        move_piece = True
-                    else:
-                        move_piece = False
-                        self.lock_piece(board_obj)
+                if direction == 'left':
+                    if block.state == 1:
+                        if block.x == LEFT_BOUND:
+                            move_piece = False
+                        elif board_obj.open_space(x=block.x-1, y=block.y) and \
+                            block.x > LEFT_BOUND and move_piece != False:
+                            move_piece = True
+                        else:
+                            move_piece = False
+                elif direction == 'right':
+                    if block.state == 1:
+                        if block.x == RIGHT_BOUND:
+                            move_piece = False
+                        elif board_obj.open_space(x=block.x+1, y=block.y) and \
+                            block.x < RIGHT_BOUND and move_piece != False:
+                            move_piece = True
+                        else:
+                            move_piece = False
+
         if move_piece == True:
-            self.piece_gravity()
+            self.move_piece(direction)
+        else:
+            pass
+
+    def move_piece(self, direction):
+        if direction == 'left':
+            for row in range(len(self.piece_map)):
+                for block in self.piece_map[row]:
+                    if block.state == 1:
+                        block.x -= 1
+        elif direction == 'right':
+            for row in range(len(self.piece_map)):
+                for block in self.piece_map[row]:
+                    if block.state == 1:
+                        block.x += 1
+        else:
+            pass
+
+
+    def movement_controls(self, event, board_obj):
+        if event.key == pg.K_d or event.key == pg.K_RIGHT:
+            self.check_lateral_collision('right', board_obj)
+        if event.key == pg.K_a or event.key == pg.K_LEFT:
+            self.check_lateral_collision('left', board_obj)
+        if event.key == pg.K_s or event.key == pg.K_DOWN:
+            self.check_collision(board_obj)
+
+
 
     def lock_piece(self, board_obj):
         self.landed = True
@@ -176,9 +133,27 @@ class Piece:
                     board_obj.board_state[block.y][block.x].state = 1
         board_obj.line_clear_check()
 
+    def check_collision(self, board_obj):
+        move_piece = True
+        for row in range(len(self.piece_map)):
+            for block in self.piece_map[row]:
+                if block.state == 1:
+                    if block.y+1 > BOTTOM_BOUND:
+                        move_piece = False
+                    elif board_obj.open_space(x=block.x, y=block.y+1) and \
+                        block.y < BOTTOM_BOUND and move_piece != False:
+                        move_piece = True
+                    else:
+                        move_piece = False
+        if move_piece == True:
+            self.piece_gravity()
+        else:
+            self.lock_piece(board_obj)
 
-
-
+    def draw_piece(self, screen):
+        for row in range(len(self.piece_map)):
+            for block in self.piece_map[row]:
+                block.draw_block(screen, block.color)
 
 
 

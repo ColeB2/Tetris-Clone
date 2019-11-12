@@ -33,7 +33,7 @@ class Game(States):
 
     def get_event(self, event):
         if event.type == pg.KEYDOWN:
-            self.piece.move_piece(event, self.board)
+            self.piece.movement_controls(event, self.board)
             print('Game State keydown')
         elif event.type == pg.MOUSEBUTTONDOWN:
             self.done = True
