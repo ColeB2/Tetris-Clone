@@ -71,6 +71,8 @@ class Piece:
         for row in range(len(self.piece_map)):
             for block in self.piece_map[row]:
                 block.y += 1
+    def check_rotational_collision(self, rot_direction, board_obj):
+        pass
 
     def check_lateral_collision(self, direction, board_obj):
         move_piece = True
@@ -111,9 +113,6 @@ class Piece:
                 for block in self.piece_map[row]:
                     if block.state == 1:
                         block.x += 1
-        else:
-            pass
-
 
     def movement_controls(self, event, board_obj):
         if event.key == pg.K_d or event.key == pg.K_RIGHT:
@@ -122,7 +121,6 @@ class Piece:
             self.check_lateral_collision('left', board_obj)
         if event.key == pg.K_s or event.key == pg.K_DOWN:
             self.check_collision(board_obj)
-
 
 
     def lock_piece(self, board_obj):
@@ -216,6 +214,7 @@ class Board:
     def clear_line(self, row_to_be_cleared):
         for block in self.board_state[row_to_be_cleared]:
             block.state = 0
+        self.lines_cleared += 1
 
     def move_rows_down(self, row_cleared):
         for row in range(row_cleared, 0, -1):
