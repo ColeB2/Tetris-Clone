@@ -62,7 +62,9 @@ class Block:
 
 class Piece:
     def __init__(self, shape):
-        self.shape = shape
+        self.orientation = 0
+        self.rotation_states = shape
+        self.shape = shape[self.orientation]
         self.color = RED
         self.piece_map = []
         self.create_piece()
@@ -83,8 +85,30 @@ class Piece:
         for row in range(len(self.piece_map)):
             for block in self.piece_map[row]:
                 block.y += 1
+''' TODO ROTATING TETRIS BLOCKS'''
     def check_rotational_collision(self, rot_direction, board_obj):
-        pass
+        rotate_piece = True
+        for row in range(len(self.piece_map)):
+            for block in self.piece_map[row]:
+                pass
+
+        if rotate_piece:
+            self.rotate_piece('right')
+
+    def rotate_piece(self, rot_direction):
+        if rot_direction == 'right':
+            if self.orientation < 3:
+                self.orientation += 1
+            else:
+                self.orientation = 0
+            self.shape = self.rotation_states[self.orientation]
+            print(self.shape)
+
+            for row in range(len(self.piece_map)):
+                for col in range(len(self.piece_map[row])):
+                    self.piece_map[row][col].state = self.shape[row][col]
+
+
 
     def check_lateral_collision(self, direction, board_obj):
         move_piece = True
@@ -131,8 +155,13 @@ class Piece:
             self.check_lateral_collision('right', board_obj)
         if event.key == pg.K_a or event.key == pg.K_LEFT:
             self.check_lateral_collision('left', board_obj)
+        if event.key == pg.K_KP9:
+            self.check_rotational_collision('right',board_obj)
+        if event.key == pg.K_KP7:
+            self.check_rotational_collision('left',board_obj)
         if event.key == pg.K_s or event.key == pg.K_DOWN:
             self.check_collision(board_obj)
+
 
 
     def lock_piece(self, board_obj):
@@ -244,5 +273,5 @@ class Board:
                 self.board_state[row][block].state = block_state
 
     def open_space(self, x, y):
-        print(x, y)
+        #print(x, y)
         return self.board_state[y][x].state == 0

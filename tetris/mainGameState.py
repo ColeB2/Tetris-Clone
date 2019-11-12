@@ -14,8 +14,8 @@ class Game(States):
         self.next = 'menu'
         self.board = Board()
         self.shape_list = TETRIS_PIECES
-        self.piece = Piece(shape=random.choice(self.shape_list)[0])
-        self.next_piece = Piece(shape=random.choice(self.shape_list)[0])
+        self.piece = Piece(shape=random.choice(self.shape_list))
+        self.next_piece = Piece(shape=random.choice(self.shape_list))
 
     def cleanup(self):
         print('cleaning up Game state stuff')
@@ -41,7 +41,7 @@ class Game(States):
     def game_logic(self):
         if self.piece.landed == True:
             self.piece = self.next_piece
-            self.next_piece = Piece(shape=random.choice(self.shape_list)[0])
+            self.next_piece = Piece(shape=random.choice(self.shape_list))
             self.piece.landed = False
             self.piece.check_collision(self.board)
             self.board.print_board()
