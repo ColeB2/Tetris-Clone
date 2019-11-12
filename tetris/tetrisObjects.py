@@ -25,11 +25,11 @@ class Block:
 
 
     def get_x_coord(self):
-        '''returns X position on grid from 0-TETRIS_BOARD_WIDTH-1'''
+        '''returns X coordinate pixel position'''
         return int((self.x * SCALE) + X_OFFSET)
 
     def get_y_coord(self):
-        '''returns Y position on grid from 0-TETRIS_BOARD_HEIGHT-1'''
+        '''returns Y coordinate pixel position'''
         return int((self.y * SCALE) + Y_OFFSET)
 
     def empty(self):
@@ -44,6 +44,18 @@ class Block:
             pg.draw.rect(screen, BLACK,
                         (self.get_x_coord(), self.get_y_coord(),
                         SCALE-1, SCALE-1))
+
+    def draw_next_block(self, screen, color, piece_size):
+        x_offset = NEXT_X_OFF
+        y_offset = NEXT_Y_OFF
+        if piece_size == 3:
+            x_offset += 0.5*SCALE
+            y_offset += 0.0*SCALE
+        if self.state == 1:
+            pg.draw.rect(screen, color,
+                        (self.x*SCALE + x_offset, self.y*SCALE + y_offset,
+                        SCALE-1, SCALE-1))
+
 
     def __str__(self):
         return 'X: %s Y: %s State: %s' % (self.x, self.y, self.state)
@@ -152,6 +164,15 @@ class Piece:
         for row in range(len(self.piece_map)):
             for block in self.piece_map[row]:
                 block.draw_block(screen, block.color)
+
+    def draw_next(self, screen):
+        piece_size = len(self.piece_map[0])
+        pg.draw.rect(screen, BLACK,
+                    (NEXT_BOX_X, NEXT_BOX_Y,
+                    NEXT_BOX_WIDTH, NEXT_BOX_HEIGHT))
+        for row in range(len(self.piece_map)):
+            for block in self.piece_map[row]:
+                block.draw_next_block(screen, block.color, piece_size)
 
 
 

@@ -14,8 +14,8 @@ class Game(States):
         self.next = 'menu'
         self.board = Board()
         self.shape_list = TETRIS_PIECES
-        self.piece = Piece(shape=BLOCK_PIECE[0])
-        self.next_piece = Piece(shape=BLOCK_PIECE[0])
+        self.piece = Piece(shape=random.choice(self.shape_list)[0])
+        self.next_piece = Piece(shape=random.choice(self.shape_list)[0])
 
     def cleanup(self):
         print('cleaning up Game state stuff')
@@ -29,10 +29,19 @@ class Game(States):
         text_rect = text.get_rect(topleft = (0,0))
         screen.blit(text, text_rect)
 
+    def display_next_box(self, screen):
+        font = pg.font.SysFont(None, NEXT_TEXT_SIZE)
+        text = font.render('NEXT', True, BLACK)
+        text_rect = text.get_rect(center=(NEXT_TEXT_X, NEXT_TEXT_Y))
+        screen.blit(text, text_rect)
+        self.next_piece.draw_next(screen)
+        pass
+
+
     def game_logic(self):
         if self.piece.landed == True:
             self.piece = self.next_piece
-            self.next_piece = Piece(shape=BLOCK_PIECE[0])
+            self.next_piece = Piece(shape=random.choice(self.shape_list)[0])
             self.piece.landed = False
             self.piece.check_collision(self.board)
             self.board.print_board()
@@ -55,4 +64,5 @@ class Game(States):
         screen.fill((WHITE2))
         self.board.draw_board(screen)
         self.piece.draw_piece(screen)
+        self.display_next_box(screen)
         self.display_score(screen)
