@@ -14,8 +14,12 @@ class Game(States):
         self.next = 'menu'
         self.board = Board()
         self.shape_list = TETRIS_PIECES
-        self.piece = Piece(shape=random.choice(self.shape_list))
-        self.next_piece = Piece(shape=random.choice(self.shape_list))
+        self.piece = Piece(shape=random.choice(self.shape_list),
+                           board_obj=self.board)
+        self.next_piece = Piece(shape=random.choice(self.shape_list),
+                                board_obj=self.board)
+        self.piece.spawn_piece()
+        self.game_over = False
 
     def cleanup(self):
         print('cleaning up Game state stuff')
@@ -35,28 +39,47 @@ class Game(States):
         text_rect = text.get_rect(center=(NEXT_TEXT_X, NEXT_TEXT_Y))
         screen.blit(text, text_rect)
         self.next_piece.draw_next(screen)
-        pass
+
+    def game_over_check(self):
+        if self.piece.valid_spawn == False:
+            self.game_over = True
+
+    def handle_game_over(self):
+        print('Handling game over')
+        self.board.reset_board()
+        self.piece = Piece(shape=random.choice(self.shape_list),
+                           board_obj=self.board)
+        self.next_piece = Piece(shape=random.choice(self.shape_list),
+                                board_obj=self.board)
+        self.piece.spawn_piece()
+        self.game_over = False
+
 
 
     def game_logic(self):
         if self.piece.landed == True:
             self.piece = self.next_piece
-            self.next_piece = Piece(shape=random.choice(self.shape_list))
+            self.piece.spawn_piece()
+            self.next_piece = Piece(shape=random.choice(self.shape_list),
+                                    board_obj=self.board)
+            self.game_over_check()
+            if self.game_over == True:
+                self.handle_game_over()
             self.piece.landed = False
-            self.piece.check_collision(self.board)
+            self.piece.check_collision()
             self.board.print_board()
 
 
     def get_event(self, event):
         if event.type == pg.KEYDOWN:
-            self.piece.movement_controls(event, self.board)
+            self.piece.movement_controls(event)
             print('Game State keydown')
         elif event.type == pg.MOUSEBUTTONDOWN:
             self.done = True
 
     def update(self, screen, dt):
         self.draw(screen)
-        self.piece.check_collision(self.board)
+        self.piece.check_collision()
         self.game_logic()
 
 

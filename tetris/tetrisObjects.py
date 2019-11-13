@@ -23,6 +23,9 @@ class Block:
         pass
 
 
+    def __str__(self):
+        return 'X: %s Y: %s State: %s' % (self.x, self.y, self.state)
+
 
     def get_x_coord(self):
         '''returns X coordinate pixel position'''
@@ -40,48 +43,68 @@ class Block:
             pg.draw.rect(screen, color,
                         (self.get_x_coord(), self.get_y_coord(),
                         SCALE-1, SCALE-1))
-            '''TESTING BG COLOR == YELLOW '''
+            '''TESTING BG COLOR == YELLOW ''' '''
         elif self.state == 0 and is_board == False:
             pg.draw.rect(screen, YELLOW,
                         (self.get_x_coord(), self.get_y_coord(),
-                        SCALE-1, SCALE-1))
+                        SCALE-1, SCALE-1)) '''
         elif self.state == 0 and is_board == True:
             pg.draw.rect(screen, BLACK,
                         (self.get_x_coord(), self.get_y_coord(),
                         SCALE-1, SCALE-1))
 
-    def draw_next_block(self, screen, color, piece_size):
-        x_offset = NEXT_X_OFF
-        y_offset = NEXT_Y_OFF
-        if piece_size == 3:
-            x_offset += 0.5*SCALE
-            y_offset += 0.0*SCALE
-        if self.state == 1:
-            pg.draw.rect(screen, color,
-                        (self.x*SCALE + x_offset, self.y*SCALE + y_offset,
-                        SCALE-1, SCALE-1))
-
-
-    def __str__(self):
-        return 'X: %s Y: %s State: %s' % (self.x, self.y, self.state)
 
 class Piece:
-    def __init__(self, shape):
+    def __init__(self, shape, board_obj):
         self.orientation = 0
         self.rotation_states = shape
         self.shape = shape[self.orientation]
         self.color = RED
         self.piece_map = []
-        self.create_piece()
         self.landed = False
+        self.x_offset = int()
+        self.y_offset = int()
+        self.set_spawn_offset()
+        self.board = board_obj
+        self.valid_spawn = True
 
     def create_piece(self):
         for row in range(len(self.shape)):
             self.piece_map.append(list())
             for col in range(len(self.shape)):
-                self.piece_map[row].append(Block(x=col, y=row,
+                self.piece_map[row].append(Block(x=col + self.x_offset,
+                                                 y=row - self.y_offset,
                                                state=self.shape[row][col],
                                                color=self.color))
+
+    def set_spawn_offset(self):
+        self.x_offset = int(7 - len(self.shape[0]))
+        for row in range(len(self.shape)):
+            if 1 in self.shape[row]:
+                self.y_offset = row
+                break
+
+    def check_spawn(self):
+        valid_spawn = True
+        for row in range(len(self.shape)):
+            for col in range(len(self.shape)):
+                if self.shape[row][col] == 1:
+                    x_val = (col+3)
+                    y_val = (row-self.y_offset)
+                    if self.board.open_space(x=x_val, y=y_val):
+                        valid_spawn = True
+                    else:
+                        valid_spawn = False
+        return valid_spawn
+
+    def spawn_piece(self):
+        valid_spawn = self.check_spawn()
+        if valid_spawn == True:
+            self.create_piece()
+        else:
+            self.valid_spawn = False
+            return False
+
 
     def get_piece_type(self):
         return self.shape
@@ -91,7 +114,7 @@ class Piece:
             for block in self.piece_map[row]:
                 block.y += 1
 
-    def check_rotational_collision(self, rot_direction, board_obj):
+    def check_rotational_collision(self, rot_direction):
         rotate_piece = True
         for row in range(len(self.piece_map)):
             for col in range(len(self.piece_map[row])):
@@ -99,7 +122,7 @@ class Piece:
                 N =self.rotation_states[self.next_rotation_state(rot_direction)]
                 next_state = N[row][col]
                 if next_state == 1:
-                    if board_obj.open_space(x=block.x, y=block.y) and \
+                    if self.board.open_space(x=block.x, y=block.y) and \
                         block.x >= LEFT_BOUND and \
                         block.x <= RIGHT_BOUND and \
                         rotate_piece != False:
@@ -137,7 +160,7 @@ class Piece:
             for col in range(len(self.piece_map[row])):
                 self.piece_map[row][col].state = self.shape[row][col]
 
-    def check_lateral_collision(self, direction, board_obj):
+    def check_lateral_collision(self, direction):
         move_piece = True
         for row in range(len(self.piece_map)):
             for block in self.piece_map[row]:
@@ -145,7 +168,7 @@ class Piece:
                     if block.state == 1:
                         if block.x == LEFT_BOUND:
                             move_piece = False
-                        elif board_obj.open_space(x=block.x-1, y=block.y) and \
+                        elif self.board.open_space(x=block.x-1, y=block.y) and \
                             block.x > LEFT_BOUND and move_piece != False:
                             move_piece = True
                         else:
@@ -154,7 +177,7 @@ class Piece:
                     if block.state == 1:
                         if block.x == RIGHT_BOUND:
                             move_piece = False
-                        elif board_obj.open_space(x=block.x+1, y=block.y) and \
+                        elif self.board.open_space(x=block.x+1, y=block.y) and \
                             block.x < RIGHT_BOUND and move_piece != False:
                             move_piece = True
                         else:
@@ -175,36 +198,36 @@ class Piece:
                 for block in self.piece_map[row]:
                     block.x += 1
 
-    def movement_controls(self, event, board_obj):
+    def movement_controls(self, event):
         if event.key == pg.K_d or event.key == pg.K_RIGHT:
-            self.check_lateral_collision('right', board_obj)
+            self.check_lateral_collision('right')
         if event.key == pg.K_a or event.key == pg.K_LEFT:
-            self.check_lateral_collision('left', board_obj)
+            self.check_lateral_collision('left')
         if event.key == pg.K_KP9:
-            self.check_rotational_collision('right',board_obj)
+            self.check_rotational_collision('right')
         if event.key == pg.K_KP7:
-            self.check_rotational_collision('left',board_obj)
+            self.check_rotational_collision('left')
         if event.key == pg.K_s or event.key == pg.K_DOWN:
-            self.check_collision(board_obj)
+            self.check_collision()
 
 
 
-    def lock_piece(self, board_obj):
+    def lock_piece(self):
         self.landed = True
         for row in range(len(self.piece_map)):
             for block in self.piece_map[row]:
                 if block.state == 1:
-                    board_obj.board_state[block.y][block.x].state = 1
-        board_obj.line_clear_check()
+                    self.board.board_state[block.y][block.x].state = 1
+        self.board.line_clear_check()
 
-    def check_collision(self, board_obj):
+    def check_collision(self):
         move_piece = True
         for row in range(len(self.piece_map)):
             for block in self.piece_map[row]:
                 if block.state == 1:
                     if block.y+1 > BOTTOM_BOUND:
                         move_piece = False
-                    elif board_obj.open_space(x=block.x, y=block.y+1) and \
+                    elif self.board.open_space(x=block.x, y=block.y+1) and \
                         block.y < BOTTOM_BOUND and move_piece != False:
                         move_piece = True
                     else:
@@ -212,7 +235,7 @@ class Piece:
         if move_piece == True:
             self.piece_gravity()
         else:
-            self.lock_piece(board_obj)
+            self.lock_piece()
 
     def draw_piece(self, screen):
         for row in range(len(self.piece_map)):
@@ -220,13 +243,25 @@ class Piece:
                 block.draw_block(screen, block.color)
 
     def draw_next(self, screen):
-        piece_size = len(self.piece_map[0])
+        x_offset = NEXT_BOX_X
+        y_offset = NEXT_BOX_Y
+
         pg.draw.rect(screen, BLACK,
                     (NEXT_BOX_X, NEXT_BOX_Y,
                     NEXT_BOX_WIDTH, NEXT_BOX_HEIGHT))
-        for row in range(len(self.piece_map)):
-            for block in self.piece_map[row]:
-                block.draw_next_block(screen, block.color, piece_size)
+
+        piece_size = len(self.shape[0])
+        if piece_size == 3:
+            x_offset += 0.5*SCALE
+            y_offset += 0.0*SCALE
+        for row in range(len(self.shape)):
+            for col in range(len(self.shape[row])):
+                if self.shape[row][col] == 1:
+                    pg.draw.rect(screen, RED,
+                                (col*SCALE + x_offset,
+                                row*SCALE + y_offset,
+                                SCALE-1, SCALE-1))
+
 
 
 
@@ -272,6 +307,12 @@ class Board:
         for row in range(len(self.board_state)):
             for block in self.board_state[row]:
                 block.draw_block(screen, RED, True)
+
+    def reset_board(self):
+        for row in range(len(self.board_state)):
+            for block in self.board_state[row]:
+                block.state = 0
+        self.lines_cleared = 0
 
     def line_clear_check(self):
         for row in range(len(self.board_state)):
