@@ -40,6 +40,11 @@ class Block:
             pg.draw.rect(screen, color,
                         (self.get_x_coord(), self.get_y_coord(),
                         SCALE-1, SCALE-1))
+            '''TESTING BG COLOR == YELLOW '''
+        elif self.state == 0 and is_board == False:
+            pg.draw.rect(screen, YELLOW,
+                        (self.get_x_coord(), self.get_y_coord(),
+                        SCALE-1, SCALE-1))
         elif self.state == 0 and is_board == True:
             pg.draw.rect(screen, BLACK,
                         (self.get_x_coord(), self.get_y_coord(),
@@ -85,30 +90,52 @@ class Piece:
         for row in range(len(self.piece_map)):
             for block in self.piece_map[row]:
                 block.y += 1
-''' TODO ROTATING TETRIS BLOCKS'''
+
     def check_rotational_collision(self, rot_direction, board_obj):
         rotate_piece = True
         for row in range(len(self.piece_map)):
-            for block in self.piece_map[row]:
-                pass
+            for col in range(len(self.piece_map[row])):
+                block = self.piece_map[row][col]
+                N =self.rotation_states[self.next_rotation_state(rot_direction)]
+                next_state = N[row][col]
+                if next_state == 1:
+                    if board_obj.open_space(x=block.x, y=block.y) and \
+                        block.x >= LEFT_BOUND and \
+                        block.x <= RIGHT_BOUND and \
+                        rotate_piece != False:
+                        rotate_piece = True
+                    else:
+                        rotate_piece = False
 
         if rotate_piece:
-            self.rotate_piece('right')
+            self.rotate_piece(rot_direction)
 
-    def rotate_piece(self, rot_direction):
+    def next_rotation_state(self, rot_direction):
+        '''
+        calculates what index in piece list the next rotation state will be at.
+        Can either be called to check what the next state will be or to change,
+        To change call: self.orientation = self.next_rotation_state(rot_dir)
+        '''
         if rot_direction == 'right':
             if self.orientation < 3:
-                self.orientation += 1
+                return self.orientation + 1
             else:
-                self.orientation = 0
-            self.shape = self.rotation_states[self.orientation]
-            print(self.shape)
+                return 0
+        elif rot_direction == 'left':
+            if self.orientation == 0:
+                return 3
+            else:
+                return self.orientation - 1
+                self.orientatiion -= 1
 
-            for row in range(len(self.piece_map)):
-                for col in range(len(self.piece_map[row])):
-                    self.piece_map[row][col].state = self.shape[row][col]
+    def rotate_piece(self, rot_direction):
+        self.next_rotation_state(rot_direction)
+        self.orientation = self.next_rotation_state(rot_direction)
+        self.shape = self.rotation_states[self.orientation]
 
-
+        for row in range(len(self.piece_map)):
+            for col in range(len(self.piece_map[row])):
+                self.piece_map[row][col].state = self.shape[row][col]
 
     def check_lateral_collision(self, direction, board_obj):
         move_piece = True
@@ -142,13 +169,11 @@ class Piece:
         if direction == 'left':
             for row in range(len(self.piece_map)):
                 for block in self.piece_map[row]:
-                    if block.state == 1:
-                        block.x -= 1
+                    block.x -= 1
         elif direction == 'right':
             for row in range(len(self.piece_map)):
                 for block in self.piece_map[row]:
-                    if block.state == 1:
-                        block.x += 1
+                    block.x += 1
 
     def movement_controls(self, event, board_obj):
         if event.key == pg.K_d or event.key == pg.K_RIGHT:
@@ -273,5 +298,7 @@ class Board:
                 self.board_state[row][block].state = block_state
 
     def open_space(self, x, y):
-        #print(x, y)
-        return self.board_state[y][x].state == 0
+        try:
+            return self.board_state[y][x].state == 0
+        except IndexError:
+            return False
