@@ -14,9 +14,9 @@ class Game(States):
         self.next = 'menu'
         self.board = Board()
         self.shape_list = TETRIS_PIECES
-        self.piece = Piece(shape=random.choice(self.shape_list),
+        self.piece = Piece(vitals=random.choice(self.shape_list),
                            board_obj=self.board)
-        self.next_piece = Piece(shape=random.choice(self.shape_list),
+        self.next_piece = Piece(vitals=random.choice(self.shape_list),
                                 board_obj=self.board)
         self.piece.spawn_piece()
         self.game_over = False
@@ -47,9 +47,9 @@ class Game(States):
     def handle_game_over(self):
         print('Handling game over')
         self.board.reset_board()
-        self.piece = Piece(shape=random.choice(self.shape_list),
+        self.piece = Piece(vitals=random.choice(self.shape_list),
                            board_obj=self.board)
-        self.next_piece = Piece(shape=random.choice(self.shape_list),
+        self.next_piece = Piece(vitals=random.choice(self.shape_list),
                                 board_obj=self.board)
         self.piece.spawn_piece()
         self.game_over = False
@@ -60,7 +60,7 @@ class Game(States):
         if self.piece.landed == True:
             self.piece = self.next_piece
             self.piece.spawn_piece()
-            self.next_piece = Piece(shape=random.choice(self.shape_list),
+            self.next_piece = Piece(vitals=random.choice(self.shape_list),
                                     board_obj=self.board)
             self.game_over_check()
             if self.game_over == True:

@@ -55,11 +55,11 @@ class Block:
 
 
 class Piece:
-    def __init__(self, shape, board_obj):
+    def __init__(self, vitals, board_obj):
         self.orientation = 0
-        self.rotation_states = shape
-        self.shape = shape[self.orientation]
-        self.color = RED
+        self.rotation_states = vitals[0]
+        self.shape = vitals[0][self.orientation]
+        self.color = vitals[1]
         self.piece_map = []
         self.landed = False
         self.x_offset = int()
