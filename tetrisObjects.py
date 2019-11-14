@@ -6,6 +6,7 @@ block, piece and board
 import pygame as pg
 from pyVariables import *
 from tetrisBoardStates import*
+import time
 
 class Block:
     def __init__(self, x, y, state=0, color=BLUE):
@@ -56,6 +57,7 @@ class Block:
 
 class Piece:
     def __init__(self, vitals, board_obj):
+        self.name = vitals[2]
         self.orientation = 0
         self.rotation_states = vitals[0]
         self.shape = vitals[0][self.orientation]
@@ -109,7 +111,7 @@ class Piece:
     def get_piece_type(self):
         return self.shape
 
-    def piece_gravity(self):
+    def move_piece_down(self):
         for row in range(len(self.piece_map)):
             for block in self.piece_map[row]:
                 block.y += 1
@@ -207,9 +209,8 @@ class Piece:
             self.check_rotational_collision('right')
         if event.key == pg.K_KP7:
             self.check_rotational_collision('left')
-        if event.key == pg.K_s or event.key == pg.K_DOWN:
-            self.check_collision()
-
+        #if event.key == pg.K_s or event.key == pg.K_DOWN:
+        #    self.check_collision()
 
 
     def lock_piece(self):
@@ -234,7 +235,7 @@ class Piece:
                     else:
                         move_piece = False
         if move_piece == True:
-            self.piece_gravity()
+            self.move_piece_down()
         else:
             self.lock_piece()
 
@@ -263,7 +264,17 @@ class Piece:
                                 row*SCALE + y_offset,
                                 SCALE-1, SCALE-1))
 
-
+    def draw_stat(self, screen, vertical_offset):
+        PSCALE = 20
+        x_offset = 150
+        y_offset = 200 + vertical_offset * (2.5 * PSCALE)
+        for row in range(len(self.shape)):
+            for col in range(len(self.shape[row])):
+                if self.shape[row][col] == 1:
+                    pg.draw.rect(screen, self.color,
+                                (col*PSCALE + x_offset,
+                                row*PSCALE + y_offset,
+                                PSCALE-1, PSCALE-1))
 
 
 class Board:
@@ -272,8 +283,8 @@ class Board:
         self.width = width
         self.height = height
         self.board_state = []
-        self.create_blank_board()
-        #self.load_board_state(BOARD_1)
+        #self.create_blank_board()
+        self.load_board_state(TETRIS_CENTER)
         self.lines_cleared = 0
         self.points = 0
 
@@ -296,7 +307,7 @@ class Board:
                 self.board_state[row].append(Block(x=col, y=row, state=0,
                                                    color=BLUE))
 
-    def load_board_state(self, loaded_state=BOARD_1):
+    def load_board_state(self, loaded_state):
         '''Loads outside board state for challenges and testing purposes'''
         for row in range(self.height):
             self.board_state.append(list())
@@ -339,9 +350,6 @@ class Board:
             self.handle_line_score(len(lines_to_clear))
             for row in lines_to_clear:
                 self.handle_line_clear(row)
-
-            #if filled == True:
-            #    self.handle_line_clear(row)
 
     def handle_line_clear(self, row):
         self.clear_line(row)
