@@ -12,7 +12,8 @@ if __name__ == '__main__':
     app = Control(**settings)
     state_dict = {
         'menu': Menu(),
-        'game': Game()
+        'game': Game(),
+        'gameover': Game_Over()
     }
 
     app.setup_states(state_dict, 'menu')

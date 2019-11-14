@@ -1,7 +1,7 @@
 '''
 mainGameState.py
 '''
-
+from assets.pyAssets import *
 from gameStates import States
 import pygame as pg
 from pyVariables import *
@@ -46,6 +46,8 @@ class Game(States):
 
     def handle_game_over(self):
         print('Handling game over')
+        self.next = 'gameover'
+        self.done = True
         self.board.reset_board()
         self.piece = Piece(vitals=random.choice(self.shape_list),
                            board_obj=self.board)
@@ -84,7 +86,7 @@ class Game(States):
 
 
     def draw(self, screen):
-        screen.fill((WHITE2))
+        screen.fill((LAVENDER_MIST))
         self.board.draw_board(screen)
         self.piece.draw_piece(screen)
         self.display_next_box(screen)

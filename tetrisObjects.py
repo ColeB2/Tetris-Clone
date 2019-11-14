@@ -218,6 +218,7 @@ class Piece:
             for block in self.piece_map[row]:
                 if block.state == 1:
                     self.board.board_state[block.y][block.x].state = 1
+                    self.board.board_state[block.y][block.x].color = self.color
         self.board.line_clear_check()
 
     def check_collision(self):
@@ -257,7 +258,7 @@ class Piece:
         for row in range(len(self.shape)):
             for col in range(len(self.shape[row])):
                 if self.shape[row][col] == 1:
-                    pg.draw.rect(screen, RED,
+                    pg.draw.rect(screen, self.color,
                                 (col*SCALE + x_offset,
                                 row*SCALE + y_offset,
                                 SCALE-1, SCALE-1))
@@ -306,7 +307,7 @@ class Board:
     def draw_board(self, screen):
         for row in range(len(self.board_state)):
             for block in self.board_state[row]:
-                block.draw_block(screen, RED, True)
+                block.draw_block(screen, block.color, True)
 
     def reset_board(self):
         for row in range(len(self.board_state)):
