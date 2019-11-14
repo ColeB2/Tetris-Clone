@@ -27,10 +27,16 @@ class Game(States):
     def startup(self):
         print('starting Game state stuff')
 
-    def display_score(self, screen):
+    def display_lines(self, screen):
         font = pg.font.SysFont(None, 40)
         text = font.render('Lines: '+str(self.board.lines_cleared), True, BLACK)
         text_rect = text.get_rect(topleft = (0,0))
+        screen.blit(text, text_rect)
+
+    def display_score(self,screen):
+        font = pg.font.SysFont(None, 40)
+        text = font.render('Score: '+str(self.board.points), True, BLACK)
+        text_rect = text.get_rect(topleft=(0,50))
         screen.blit(text, text_rect)
 
     def display_next_box(self, screen):
@@ -39,6 +45,11 @@ class Game(States):
         text_rect = text.get_rect(center=(NEXT_TEXT_X, NEXT_TEXT_Y))
         screen.blit(text, text_rect)
         self.next_piece.draw_next(screen)
+
+    def display_hud(self, screen):
+        self.display_lines(screen)
+        self.display_score(screen)
+        self.display_next_box(screen)
 
     def game_over_check(self):
         if self.piece.valid_spawn == False:
@@ -89,5 +100,4 @@ class Game(States):
         screen.fill((LAVENDER_MIST))
         self.board.draw_board(screen)
         self.piece.draw_piece(screen)
-        self.display_next_box(screen)
-        self.display_score(screen)
+        self.display_hud(screen)

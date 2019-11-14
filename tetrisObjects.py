@@ -275,6 +275,7 @@ class Board:
         self.create_blank_board()
         #self.load_board_state(BOARD_1)
         self.lines_cleared = 0
+        self.points = 0
 
         self.print_board()
 
@@ -315,14 +316,32 @@ class Board:
                 block.state = 0
         self.lines_cleared = 0
 
+    def handle_line_score(self, lines):
+        if lines == 1:
+            self.points += 40
+        elif lines == 2:
+            self.points += 100
+        elif lines == 3:
+            self.points += 300
+        elif lines == 4:
+            self.points += 1200
+
     def line_clear_check(self):
+        lines_to_clear = []
         for row in range(len(self.board_state)):
             filled = True
             for block in self.board_state[row]:
                 if block.state == 0:
                     filled = False
             if filled == True:
+                lines_to_clear.append(row)
+        if lines_to_clear:
+            self.handle_line_score(len(lines_to_clear))
+            for row in lines_to_clear:
                 self.handle_line_clear(row)
+
+            #if filled == True:
+            #    self.handle_line_clear(row)
 
     def handle_line_clear(self, row):
         self.clear_line(row)
