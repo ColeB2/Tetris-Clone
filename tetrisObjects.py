@@ -245,12 +245,9 @@ class Piece:
                 block.draw_block(screen, block.color)
 
     def draw_next(self, screen):
-        x_offset = NEXT_BOX_X
-        y_offset = NEXT_BOX_Y
-
-        pg.draw.rect(screen, BLACK,
-                    (NEXT_BOX_X, NEXT_BOX_Y,
-                    NEXT_BOX_WIDTH, NEXT_BOX_HEIGHT))
+        '''Draw function, used to draw the piece in the next box'''
+        x_offset = NEXT_X_OFF
+        y_offset = NEXT_Y_OFF#NEXT_BOX_Y
 
         piece_size = len(self.shape[0])
         if piece_size == 3:
@@ -265,16 +262,27 @@ class Piece:
                                 SCALE-1, SCALE-1))
 
     def draw_stat(self, screen, vertical_offset):
-        PSCALE = 20
-        x_offset = 150
-        y_offset = 200 + vertical_offset * (2.5 * PSCALE)
+        '''Draw function, used to draw mini pieces used in statistics box'''
+        x_offset = STAT_X_OFFSET
+        y_offset = STAT_Y_OFFSET + vertical_offset * (2.5 * PSCALE)
         for row in range(len(self.shape)):
             for col in range(len(self.shape[row])):
                 if self.shape[row][col] == 1:
-                    pg.draw.rect(screen, self.color,
-                                (col*PSCALE + x_offset,
-                                row*PSCALE + y_offset,
-                                PSCALE-1, PSCALE-1))
+                    if self.name == 'I':
+                        pg.draw.rect(screen, self.color,
+                                    (col*PSCALE + x_offset-5,
+                                    row*PSCALE + y_offset-15,
+                                    PSCALE-1, PSCALE-1))
+                    elif self.name == 'O':
+                        pg.draw.rect(screen, self.color,
+                                    (col*PSCALE + x_offset,
+                                    row*PSCALE + y_offset-5,
+                                    PSCALE-1, PSCALE-1))
+                    else:
+                        pg.draw.rect(screen, self.color,
+                                    (col*PSCALE + x_offset,
+                                    row*PSCALE + y_offset,
+                                    PSCALE-1, PSCALE-1))
 
 
 class Board:

@@ -4,6 +4,7 @@ mainGameState.py
 from assets.pyAssets import *
 from gameStates import States
 import pygame as pg
+from pyShapes import *
 from pyVariables import *
 import random
 from tetrisObjects import Block, Piece, Board
@@ -30,19 +31,15 @@ class Game(States):
 
     def startup(self):
         print('starting Game state stuff')
-    '''TODO: STATISTIC SECTION'''
+
+
+    '''-----STATISTICS HUD-----'''
     def update_piece_stats(self, piece):
         self.piece_count[str(piece)] += 1
 
-    def display_piece_stats(self, screen):
-        piece_stats = ['O', 'I', 'S', 'Z', 'J', 'L', 'T']
-        for i in range(len(piece_stats)):
-            font = pg.font.SysFont(None, 40)
-            text = font.render(str(piece_stats[i])
-                               + str(self.piece_count[str(piece_stats[i])]),
-                               True, WHITE)
-            text_rect = text.get_rect(topleft = (225, 220 + i*50))
-            screen.blit(text,text_rect)
+    def reset_piece_stats(self):
+        for piece, value in self.piece_count.items():
+            self.piece_count[piece] = 0
 
     def create_stat_pieces(self):
         stat_pieces = []
@@ -52,19 +49,42 @@ class Game(States):
 
         return stat_pieces
 
+    def display_stat_text(self, screen):
+        font = pg.font.Font(PIXEL_FONT, 50)
+        text = font.render('STATISTICS', True, WHITE)
+        text_rect = text.get_rect(center=(STAT_TEXT_X, STAT_TEXT_Y))
+        screen.blit(text, text_rect)
+
+    def display_piece_values(self, screen):
+        piece_stats = SHAPE_LIST
+        for i in range(len(piece_stats)):
+            font = pg.font.Font(PIXEL_FONT, 40)
+            text = font.render(str(
+                               self.piece_count[str(piece_stats[i])]).zfill(3),
+                               True, WHITE)
+            text_rect = text.get_rect(topleft = (225, 220 + i*50))
+            screen.blit(text,text_rect)
+
     def draw_piece_stats(self,screen):
-        pg.draw.rect(screen, BLACK,
-                    (115, 150,
-                    200, 425))
+        AAfilledRoundedRect(screen, (ROUND_STAT_BOX_RECT), GRAY)
+        pg.draw.rect(screen, BLACK, (STAT_BOX_RECT))
         pieces = self.create_stat_pieces()
         for piece_num in range(len(pieces)):
             pieces[piece_num].draw_stat(screen, piece_num)
-    '''^^^^STATS SECTION'''
+    '''-----HEADS UP DISPLAY-----'''
     def display_lines(self, screen):
-        font = pg.font.SysFont(None, 40)
-        text = font.render('Lines: '+str(self.board.lines_cleared), True, BLACK)
-        text_rect = text.get_rect(topleft = (0,0))
+        AAfilledRoundedRect(screen, (ROUND_LINE_BOX_RECT), GRAY)
+        pg.draw.rect(screen, BLACK, (LINE_BOX_RECT))
+        font = pg.font.SysFont(None, 60)
+        text = font.render('LINES - '+str(self.board.lines_cleared).zfill(3),
+                          True, WHITE)
+        text_rect = text.get_rect(center = (LINE_TEXT_COORD))
         screen.blit(text, text_rect)
+
+    def display_statistics(self, screen):
+        self.draw_piece_stats(screen)
+        self.display_piece_values(screen)
+        self.display_stat_text(screen)
 
     def display_score(self,screen):
         font = pg.font.SysFont(None, 40)
@@ -73,17 +93,24 @@ class Game(States):
         screen.blit(text, text_rect)
 
     def display_next_box(self, screen):
+        AAfilledRoundedRect(screen, (ROUND_NEXT_BOX_RECT), GRAY)
+        pg.draw.rect(screen, BLACK, (NEXT_BOX_RECT))
         font = pg.font.SysFont(None, NEXT_TEXT_SIZE)
-        text = font.render('NEXT', True, BLACK)
+        text = font.render('NEXT', True, WHITE)
         text_rect = text.get_rect(center=(NEXT_TEXT_X, NEXT_TEXT_Y))
         screen.blit(text, text_rect)
+
         self.next_piece.draw_next(screen)
 
     def display_hud(self, screen):
         self.display_lines(screen)
         self.display_score(screen)
         self.display_next_box(screen)
-        self.display_piece_stats(screen)
+        self.display_statistics(screen)
+
+    def draw_tetris_board(self, screen):
+        AAfilledRoundedRect(screen, (ROUNDED_TETRIS_BOARD_RECT), GRAY)
+        self.board.draw_board(screen)
 
     def game_over_check(self):
         if self.piece.valid_spawn == False:
@@ -96,6 +123,7 @@ class Game(States):
         self.board.reset_board()
         self.piece = Piece(vitals=random.choice(self.shape_list),
                            board_obj=self.board)
+        self.reset_piece_stats()
         self.update_piece_stats(self.piece.name)
         self.next_piece = Piece(vitals=random.choice(self.shape_list),
                                 board_obj=self.board)
@@ -134,7 +162,7 @@ class Game(States):
 
     def draw(self, screen):
         screen.fill((LAVENDER_MIST))
-        self.board.draw_board(screen)
+        #self.board.draw_board(screen)
+        self.draw_tetris_board(screen)
         self.piece.draw_piece(screen)
-        self.draw_piece_stats(screen)
         self.display_hud(screen)
