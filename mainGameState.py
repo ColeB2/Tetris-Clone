@@ -24,6 +24,7 @@ class Game(States):
                                 board_obj=self.board)
         self.piece.spawn_piece()
         self.game_over = False
+        self.high_score = 0
 
 
     def cleanup(self):
@@ -62,18 +63,49 @@ class Game(States):
             text = font.render(str(
                                self.piece_count[str(piece_stats[i])]).zfill(3),
                                True, WHITE)
-            text_rect = text.get_rect(topleft = (225, 220 + i*50))
+            text_rect = text.get_rect(topleft=(STAT_X_VALUES,
+                                      STAT_Y_VALUES + i*50))
             screen.blit(text,text_rect)
 
     def draw_piece_stats(self,screen):
-        AAfilledRoundedRect(screen, (ROUND_STAT_BOX_RECT), GRAY)
         pg.draw.rect(screen, BLACK, (STAT_BOX_RECT))
         pieces = self.create_stat_pieces()
         for piece_num in range(len(pieces)):
             pieces[piece_num].draw_stat(screen, piece_num)
+
+    '''-----SCORE BOARD-----'''
+    def calculate_high_score(self):
+        if self.board.points > self.high_score:
+            self.high_score = self.board.points
+        else:
+            self.high_score = self.high_score
+
+    def create_score_board(self, screen):
+        pg.draw.rect(screen, BLACK, (SCORE_BOX_RECT))
+
+    def display_score_text(self,screen):
+        score_text = ('SCORE', str(self.board.points).zfill(6))
+        x = SCORE_TEXT_X
+        y = SCORE_TEXT_Y
+        for i in range(len(score_text)):
+            font = pg.font.Font(PIXEL_FONT, 60)
+            text = font.render(score_text[i], True, WHITE)
+            text_rect = text.get_rect(topleft=(x,y+i*40))
+            screen.blit(text, text_rect)
+
+    def display_high_score_text(self, screen):
+        score_text = ('TOP', str(self.high_score).zfill(6))
+        x = SCORE_TEXT_X
+        y = SCORE_TEXT_Y - 90
+        for i in range(len(score_text)):
+            font = pg.font.Font(PIXEL_FONT, 60)
+            text = font.render(score_text[i], True, WHITE)
+            text_rect = text.get_rect(topleft=(x,y+i*40))
+            screen.blit(text, text_rect)
+
+
     '''-----HEADS UP DISPLAY-----'''
     def display_lines(self, screen):
-        AAfilledRoundedRect(screen, (ROUND_LINE_BOX_RECT), GRAY)
         pg.draw.rect(screen, BLACK, (LINE_BOX_RECT))
         font = pg.font.SysFont(None, 60)
         text = font.render('LINES - '+str(self.board.lines_cleared).zfill(3),
@@ -87,19 +119,19 @@ class Game(States):
         self.display_stat_text(screen)
 
     def display_score(self,screen):
-        font = pg.font.SysFont(None, 40)
-        text = font.render('Score: '+str(self.board.points), True, BLACK)
-        text_rect = text.get_rect(topleft=(0,50))
-        screen.blit(text, text_rect)
+        self.create_score_board(screen)
+        self.display_score_text(screen)
+        self.calculate_high_score()
+        self.display_high_score_text(screen)
+
+
 
     def display_next_box(self, screen):
-        AAfilledRoundedRect(screen, (ROUND_NEXT_BOX_RECT), GRAY)
         pg.draw.rect(screen, BLACK, (NEXT_BOX_RECT))
         font = pg.font.SysFont(None, NEXT_TEXT_SIZE)
         text = font.render('NEXT', True, WHITE)
         text_rect = text.get_rect(center=(NEXT_TEXT_X, NEXT_TEXT_Y))
         screen.blit(text, text_rect)
-
         self.next_piece.draw_next(screen)
 
     def display_hud(self, screen):
@@ -109,7 +141,6 @@ class Game(States):
         self.display_statistics(screen)
 
     def draw_tetris_board(self, screen):
-        AAfilledRoundedRect(screen, (ROUNDED_TETRIS_BOARD_RECT), GRAY)
         self.board.draw_board(screen)
 
     def game_over_check(self):
@@ -162,7 +193,6 @@ class Game(States):
 
     def draw(self, screen):
         screen.fill((LAVENDER_MIST))
-        #self.board.draw_board(screen)
-        self.draw_tetris_board(screen)
+        self.board.draw_board(screen)
         self.piece.draw_piece(screen)
         self.display_hud(screen)
