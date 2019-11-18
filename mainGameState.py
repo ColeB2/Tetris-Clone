@@ -179,9 +179,11 @@ class Game(States):
 
 
     def get_event(self, event):
-        if event.type == pg.KEYDOWN:
+        if event.type == pg.KEYDOWN and event.key == pg.K_p:
+            self.next = 'pause'
+            self.done = True
+        elif event.type == pg.KEYDOWN:
             self.piece.movement_controls(event)
-            print('Game State keydown')
         elif event.type == pg.MOUSEBUTTONDOWN:
             self.done = True
 

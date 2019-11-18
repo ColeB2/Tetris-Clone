@@ -247,7 +247,7 @@ class Piece:
     def draw_next(self, screen):
         '''Draw function, used to draw the piece in the next box'''
         x_offset = NEXT_X_OFF
-        y_offset = NEXT_Y_OFF#NEXT_BOX_Y
+        y_offset = NEXT_Y_OFF
 
         piece_size = len(self.shape[0])
         if piece_size == 3:
@@ -291,12 +291,11 @@ class Board:
         self.width = width
         self.height = height
         self.board_state = []
-        #self.create_blank_board()
-        self.load_board_state(TETRIS_CENTER)
+        self.create_blank_board()
+        #self.load_board_state(TETRIS_CENTER)
         self.lines_cleared = 0
         self.points = 0
-
-        self.print_board()
+        #self.print_board()
 
 
     def __str__(self):
