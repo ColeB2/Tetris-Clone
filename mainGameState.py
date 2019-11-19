@@ -26,7 +26,14 @@ class Game(States):
         self.high_score = 0
 
         self.move_left = False
-        self.lateral_move_frequency = 0
+        self.move_right = False
+        self.move_down = False
+        self.lateral_move_frequency = 150
+        self.dt_last_lateral_move = pg.time.get_ticks()
+
+        self.dt_last_down_move =pg.time.get_ticks()
+        self.down_freq = 270
+        self.down_move_frequency = self.down_freq
 
 
     def cleanup(self):
@@ -145,6 +152,8 @@ class Game(States):
     def draw_tetris_board(self, screen):
         self.board.draw_board(screen)
 
+
+        '''Game Logic and Game Over'''
     def game_over_check(self):
         if self.piece.valid_spawn == False:
             self.game_over = True
@@ -162,21 +171,30 @@ class Game(States):
         self.piece.spawn_piece()
         self.game_over = False
 
-
-
     def game_logic(self):
         if self.piece.landed == True:
             self.piece = self.next_piece
             self.update_piece_stats(self.piece.name)
             self.piece.spawn_piece()
+            self.down_move_frequency = self.down_freq
             self.next_piece = Piece(vitals=random.choice(self.shape_list),
                                     board_obj=self.board)
             self.game_over_check()
             if self.game_over == True:
                 self.handle_game_over()
             self.piece.landed = False
-            self.piece.handle_gravity()
 
+
+    def piece_gravity(self):
+        if pg.time.get_ticks() - self.dt_last_down_move > self.down_move_frequency:
+            self.piece.handle_gravity()
+            self.dt_last_down_move = pg.time.get_ticks()
+
+    def set_gravity(self):
+        self.down_freq = 0
+
+
+        '''Controls'''
     def piece_movement(self, direction, rot=False):
         if rot == True:
             if direction == 'right':
@@ -185,39 +203,61 @@ class Game(States):
                 self.piece.handle_movement('left', rot)
         elif rot == False:
             if direction == 'right':
-                self.piece.handle_movement('right')
+                self.move_right = True
+                self.move_left = False
+                self.movement_handler()
             elif direction == 'left':
-                self.piece.handle_movement('left')
                 self.move_left = True
+                self.move_right = False
+                self.movement_handler()
+            elif direction == 'down':
+                self.move_down = True
+                self.movement_handler()
 
+
+    def movement_handler(self):
+        if  pg.time.get_ticks() - self.dt_last_lateral_move > self.lateral_move_frequency:
+            if self.move_left:
+                print(pg.time.get_ticks() - self.dt_last_lateral_move)
+                self.piece.handle_movement('left')
+                self.dt_last_lateral_move = pg.time.get_ticks()
+            elif self.move_right:
+                print(pg.time.get_ticks() - self.dt_last_lateral_move)
+                self.piece.handle_movement('right')
+                self.dt_last_lateral_move = pg.time.get_ticks()
+        if self.move_down and self.piece.landed == False:
+            self.down_move_frequency = 0
+        else:
+            self.down_move_frequency = self.down_freq
 
     def get_event(self, event):
-        if event.type == pg.KEYUP:
-            self.move_left = False
         if event.type == pg.KEYDOWN and event.key == pg.K_p:
             self.next = 'pause'
             self.done = True
-        elif event.type == pg.KEYDOWN:
-            #print(pg.K_d or pg.K_RIGHT)
-            if event.key == (pg.K_d or pg.K_RIGHT):
-                self.piece_movement('right')
-            elif event.key == (pg.K_a or pg.K_LEFT):
-                self.piece_movement('left')
-            elif event.key == pg.K_KP7:
-                self.piece_movement('left', rot=True)
-            elif event.key == pg.K_KP9:
-                self.piece_movement('right', rot=True)
-
-        elif event.type == pg.MOUSEBUTTONDOWN:
-            self.done = True
-
+        elif event.type == pg.KEYDOWN and event.key == (pg.K_d or pg.K_RIGHT):
+            self.piece_movement('right')
+        elif event.type == pg.KEYDOWN and event.key == (pg.K_a or pg.K_LEFT):
+            self.piece_movement('left')
+        elif event.type == pg.KEYDOWN and event.key == pg.K_KP7:
+            self.piece_movement('left', rot=True)
+        elif event.type == pg.KEYDOWN and event.key == pg.K_KP9:
+            self.piece_movement('right', rot=True)
+        elif event.type == pg.KEYDOWN and event.key == (pg.K_s or pg.K_DOWN):
+            self.piece_movement('down')
+        elif event.type == pg.KEYUP and event.key == (pg.K_a):
+            self.move_left = False
+        elif event.type == pg.KEYUP and event.key == (pg.K_d):
+            self.move_right = False
+        elif event.type == pg.KEYUP and event.key == (pg.K_s):
+            self.move_down = False
     def move_logic(self):
         if self.move_left == True:
             pass
 
     def update(self, screen, dt):
         self.draw(screen)
-        self.piece.handle_gravity()
+        self.piece_gravity()
+        self.movement_handler()
         self.game_logic()
 
 

@@ -65,7 +65,7 @@ class Piece:
                                                  y=row - self.y_offset,
                                                state=self.shape[row][col],
                                                color=self.color))
-    '''PIEE SPAWN METHODS'''
+    '''PIECE SPAWN METHODS'''
     def set_spawn_offset(self):
         self.x_offset = int(7 - len(self.shape[0]))
         for row in range(len(self.shape)):
