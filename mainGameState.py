@@ -25,6 +25,9 @@ class Game(States):
         self.game_over = False
         self.high_score = 0
 
+        self.move_left = False
+        self.lateral_move_frequency = 0
+
 
     def cleanup(self):
         print('cleaning up Game state stuff')
@@ -172,21 +175,49 @@ class Game(States):
             if self.game_over == True:
                 self.handle_game_over()
             self.piece.landed = False
-            self.piece.check_collision()
+            self.piece.handle_gravity()
+
+    def piece_movement(self, direction, rot=False):
+        if rot == True:
+            if direction == 'right':
+                self.piece.handle_movement('right', rot)
+            elif direction == 'left':
+                self.piece.handle_movement('left', rot)
+        elif rot == False:
+            if direction == 'right':
+                self.piece.handle_movement('right')
+            elif direction == 'left':
+                self.piece.handle_movement('left')
+                self.move_left = True
 
 
     def get_event(self, event):
+        if event.type == pg.KEYUP:
+            self.move_left = False
         if event.type == pg.KEYDOWN and event.key == pg.K_p:
             self.next = 'pause'
             self.done = True
         elif event.type == pg.KEYDOWN:
-            self.piece.movement_controls(event)
+            #print(pg.K_d or pg.K_RIGHT)
+            if event.key == (pg.K_d or pg.K_RIGHT):
+                self.piece_movement('right')
+            elif event.key == (pg.K_a or pg.K_LEFT):
+                self.piece_movement('left')
+            elif event.key == pg.K_KP7:
+                self.piece_movement('left', rot=True)
+            elif event.key == pg.K_KP9:
+                self.piece_movement('right', rot=True)
+
         elif event.type == pg.MOUSEBUTTONDOWN:
             self.done = True
 
+    def move_logic(self):
+        if self.move_left == True:
+            pass
+
     def update(self, screen, dt):
         self.draw(screen)
-        self.piece.check_collision()
+        self.piece.handle_gravity()
         self.game_logic()
 
 

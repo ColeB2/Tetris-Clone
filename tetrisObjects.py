@@ -65,7 +65,7 @@ class Piece:
                                                  y=row - self.y_offset,
                                                state=self.shape[row][col],
                                                color=self.color))
-
+    '''PIEE SPAWN METHODS'''
     def set_spawn_offset(self):
         self.x_offset = int(7 - len(self.shape[0]))
         for row in range(len(self.shape)):
@@ -94,11 +94,7 @@ class Piece:
             self.valid_spawn = False
             return False
 
-    def move_piece_down(self):
-        for row in range(len(self.piece_map)):
-            for block in self.piece_map[row]:
-                block.y += 1
-
+    '''LATERAL AND ROTATIONAL MOVEMENT'''
     def check_rotational_collision(self, rot_direction):
         rotate_piece = True
         for row in range(len(self.piece_map)):
@@ -167,11 +163,7 @@ class Piece:
                             move_piece = True
                         else:
                             move_piece = False
-
-        if move_piece == True:
-            self.move_piece(direction)
-        else:
-            pass
+        return move_piece
 
     def move_piece(self, direction):
         if direction == 'left':
@@ -183,27 +175,20 @@ class Piece:
                 for block in self.piece_map[row]:
                     block.x += 1
 
-    def movement_controls(self, event):
-        if event.key == pg.K_d or event.key == pg.K_RIGHT:
-            self.check_lateral_collision('right')
-        if event.key == pg.K_a or event.key == pg.K_LEFT:
-            self.check_lateral_collision('left')
-        if event.key == pg.K_KP9:
-            self.check_rotational_collision('right')
-        if event.key == pg.K_KP7:
-            self.check_rotational_collision('left')
-        #if event.key == pg.K_s or event.key == pg.K_DOWN:
-        #    self.check_collision()
+    def handle_movement(self, movement, rot=False):
+        if rot == True:
+            if self.check_rotational_collision(movement):
+                self.rotate_piece(movement)
+        else:
+            if self.check_lateral_collision(movement):
+                self.move_piece(movement)
 
-
-    def lock_piece(self):
-        self.landed = True
-        for row in range(len(self.piece_map)):
-            for block in self.piece_map[row]:
-                if block.state == 1:
-                    self.board.board_state[block.y][block.x].state = 1
-                    self.board.board_state[block.y][block.x].color = self.color
-        self.board.line_clear_check()
+    '''DOWNWARD MOVEMENT'''
+    def handle_gravity(self):
+        if self.check_collision() == True:
+            self.move_piece_down()
+        else:
+            self.lock_piece()
 
     def check_collision(self):
         move_piece = True
@@ -217,11 +202,24 @@ class Piece:
                         move_piece = True
                     else:
                         move_piece = False
-        if move_piece == True:
-            self.move_piece_down()
-        else:
-            self.lock_piece()
+        return move_piece
 
+    def move_piece_down(self):
+        for row in range(len(self.piece_map)):
+            for block in self.piece_map[row]:
+                block.y += 1
+
+    def lock_piece(self):
+        self.landed = True
+        for row in range(len(self.piece_map)):
+            for block in self.piece_map[row]:
+                if block.state == 1:
+                    self.board.board_state[block.y][block.x].state = 1
+                    self.board.board_state[block.y][block.x].color = self.color
+        self.board.line_clear_check()
+
+
+    '''DRAWING METHODS'''
     def draw_piece(self, screen):
         for row in range(len(self.piece_map)):
             for block in self.piece_map[row]:
