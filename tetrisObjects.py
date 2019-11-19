@@ -17,16 +17,8 @@ class Block:
         self.x_coord = self.get_x_coord()
         self.y_coord = self.get_y_coord()
 
-    def __iter__(self):
-        return self
-
-    def __next__(self):
-        pass
-
-
     def __str__(self):
         return 'X: %s Y: %s State: %s' % (self.x, self.y, self.state)
-
 
     def get_x_coord(self):
         '''returns X coordinate pixel position'''
@@ -36,7 +28,7 @@ class Block:
         '''returns Y coordinate pixel position'''
         return int((self.y * SCALE) + Y_OFFSET)
 
-    def empty(self):
+    def reset_block_state(self):
         return self.state == 0
 
     def draw_block(self, screen, color, is_board=False):
@@ -44,11 +36,6 @@ class Block:
             pg.draw.rect(screen, color,
                         (self.get_x_coord(), self.get_y_coord(),
                         SCALE-1, SCALE-1))
-            '''TESTING BG COLOR == YELLOW ''' '''
-        elif self.state == 0 and is_board == False:
-            pg.draw.rect(screen, YELLOW,
-                        (self.get_x_coord(), self.get_y_coord(),
-                        SCALE-1, SCALE-1)) '''
         elif self.state == 0 and is_board == True:
             pg.draw.rect(screen, BLACK,
                         (self.get_x_coord(), self.get_y_coord(),
@@ -86,7 +73,7 @@ class Piece:
                 self.y_offset = row
                 break
 
-    def check_spawn(self):
+    def check_spawn_validity(self):
         valid_spawn = True
         for row in range(len(self.shape)):
             for col in range(len(self.shape)):
@@ -100,16 +87,12 @@ class Piece:
         return valid_spawn
 
     def spawn_piece(self):
-        valid_spawn = self.check_spawn()
+        valid_spawn = self.check_spawn_validity()
         if valid_spawn == True:
             self.create_piece()
         else:
             self.valid_spawn = False
             return False
-
-
-    def get_piece_type(self):
-        return self.shape
 
     def move_piece_down(self):
         for row in range(len(self.piece_map)):
@@ -333,6 +316,7 @@ class Board:
             for block in self.board_state[row]:
                 block.state = 0
         self.lines_cleared = 0
+        self.points = 0
 
     def handle_line_score(self, lines):
         if lines == 1:
@@ -358,9 +342,9 @@ class Board:
             for row in lines_to_clear:
                 self.handle_line_clear(row)
 
-    def handle_line_clear(self, row):
-        self.clear_line(row)
-        self.move_rows_down(row)
+    def handle_line_clear(self, line):
+        self.clear_line(line)
+        self.move_rows_down(line)
 
     def clear_line(self, row_to_be_cleared):
         for block in self.board_state[row_to_be_cleared]:

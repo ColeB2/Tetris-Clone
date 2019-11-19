@@ -18,7 +18,6 @@ class Game(States):
         self.shape_list = TETRIS_PIECES
         self.piece = Piece(vitals=random.choice(self.shape_list),
                            board_obj=self.board)
-        self.piece = Piece(self.shape_list[1], board_obj=self.board)
         self.update_piece_stats(self.piece.name)
         self.next_piece = Piece(vitals=random.choice(self.shape_list),
                                 board_obj=self.board)
@@ -148,7 +147,6 @@ class Game(States):
             self.game_over = True
 
     def handle_game_over(self):
-        print('Handling game over')
         self.next = 'gameover'
         self.done = True
         self.board.reset_board()
@@ -175,7 +173,6 @@ class Game(States):
                 self.handle_game_over()
             self.piece.landed = False
             self.piece.check_collision()
-            self.board.print_board()
 
 
     def get_event(self, event):
