@@ -216,8 +216,6 @@ class Piece:
                 if block.state == 1:
                     self.board.board_state[block.y][block.x].state = 1
                     self.board.board_state[block.y][block.x].color = self.color
-        self.board.line_clear_check()
-
 
     '''DRAWING METHODS'''
     def draw_piece(self, screen):
@@ -276,6 +274,8 @@ class Board:
         #self.load_board_state(TETRIS_CENTER)
         self.lines_cleared = 0
         self.points = 0
+        self.start_level = 0
+        self.level = self.start_level
         #self.print_board()
 
 
@@ -316,15 +316,24 @@ class Board:
         self.lines_cleared = 0
         self.points = 0
 
+    def handle_level(self):
+        if self.level > self.start_level:
+            if self.lines_cleared >= LEVELS[self.start_level] + \
+                (10 * (self.level-self.start_level)):
+                self.level +=1
+        elif self.lines_cleared >= LEVELS[self.start_level]:
+            self.level = self.start_level + 1
+
+
     def handle_line_score(self, lines):
         if lines == 1:
-            self.points += 40
+            self.points += 40 * (self.level + 1)
         elif lines == 2:
-            self.points += 100
+            self.points += 100 * (self.level + 1)
         elif lines == 3:
-            self.points += 300
+            self.points += 300* (self.level + 1)
         elif lines == 4:
-            self.points += 1200
+            self.points += 1200 * (self.level + 1)
 
     def line_clear_check(self):
         lines_to_clear = []
@@ -339,6 +348,7 @@ class Board:
             self.handle_line_score(len(lines_to_clear))
             for row in lines_to_clear:
                 self.handle_line_clear(row)
+            self.handle_level()
 
     def handle_line_clear(self, line):
         self.clear_line(line)

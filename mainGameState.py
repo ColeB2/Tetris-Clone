@@ -31,8 +31,8 @@ class Game(States):
         self.lateral_move_frequency = 150
         self.dt_last_lateral_move = pg.time.get_ticks()
 
-        self.dt_last_down_move =pg.time.get_ticks()
-        self.down_freq = 270
+        self.dt_last_down_move = pg.time.get_ticks()
+        self.down_freq = SPEED[self.board.level]
         self.down_move_frequency = self.down_freq
 
 
@@ -134,6 +134,19 @@ class Game(States):
         self.display_high_score_text(screen)
 
 
+    def display_level_box(self,screen):
+        pg.draw.rect(screen, BLACK, LEVEL_BOX_RECT)
+        level_text = ['LEVEL', str(self.board.level).zfill(2)]
+        x = LEVEL_TEXT_X
+        y = LEVEL_TEXT_Y
+
+        font = pg.font.Font(PIXEL_FONT, 60)
+        for i in range(len(level_text)):
+            text = font.render(level_text[i], True, WHITE)
+            text_rect = text.get_rect(topleft=(x+i*45,y +i*30))
+            screen.blit(text, text_rect)
+
+
 
     def display_next_box(self, screen):
         pg.draw.rect(screen, BLACK, (NEXT_BOX_RECT))
@@ -148,6 +161,7 @@ class Game(States):
         self.display_score(screen)
         self.display_next_box(screen)
         self.display_statistics(screen)
+        self.display_level_box(screen)
 
     def draw_tetris_board(self, screen):
         self.board.draw_board(screen)
@@ -173,6 +187,7 @@ class Game(States):
 
     def game_logic(self):
         if self.piece.landed == True:
+            self.board.line_clear_check()
             self.piece = self.next_piece
             self.update_piece_stats(self.piece.name)
             self.piece.spawn_piece()
