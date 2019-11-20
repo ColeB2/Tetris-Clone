@@ -2,6 +2,7 @@ from gameStates import *
 from mainGameState import Game
 
 
+
 if __name__ == '__main__':
     settings = {
         'size': DIS_SIZE,
@@ -13,6 +14,7 @@ if __name__ == '__main__':
     state_dict = {
         'menu': Menu(),
         'game': Game(),
+        'level': Level(),
         'pause': Pause(),
         'gameover': Game_Over()
     }

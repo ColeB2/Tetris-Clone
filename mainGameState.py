@@ -7,6 +7,7 @@ import pygame as pg
 from pyShapes import *
 from pyVariables import *
 import random
+from gameStates import States
 from tetrisObjects import Block, Piece, Board
 
 class Game(States):

@@ -56,8 +56,9 @@ class Menu(States):
 
     def controls_text(self, screen):
         font = pg.font.Font(PIXEL_FONT, 50)
-        ctrl_text = ['a - left', 'd - right', 'numpad7 - rotate reft',
-                     'numpad9 - rotate right' ,'p - pause']
+        ctrl_text = ['a - left', 'd - right', 's - down',
+                     'numpad7 - rotate reft', 'numpad9 - rotate right' ,
+                     'p - pause']
         for i in range(len(ctrl_text)):
             text = font.render(ctrl_text[i], True, BLACK)
             text_rect = text.get_rect(center=(DIS_X/2, DIS_Y/4 + i*30))
@@ -215,6 +216,7 @@ class Control:
     def main_game_loop(self):
         while not self.done:
             delta_time = self.clock.tick(self.fps)/1000.0
+            starting_level = 0
             self.event_loop()
             self.update(delta_time)
             pg.display.update()
