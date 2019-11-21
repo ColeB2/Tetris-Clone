@@ -38,10 +38,10 @@ class Game(States):
 
 
     def cleanup(self):
-        print('cleaning up Game state stuff')
+        pass
 
     def startup(self):
-        print('starting Game state stuff')
+        pass
 
 
     '''-----STATISTICS HUD-----'''
@@ -234,11 +234,9 @@ class Game(States):
     def movement_handler(self):
         if  pg.time.get_ticks() - self.dt_last_lateral_move > self.lateral_move_frequency:
             if self.move_left:
-                print(pg.time.get_ticks() - self.dt_last_lateral_move)
                 self.piece.handle_movement('left')
                 self.dt_last_lateral_move = pg.time.get_ticks()
             elif self.move_right:
-                print(pg.time.get_ticks() - self.dt_last_lateral_move)
                 self.piece.handle_movement('right')
                 self.dt_last_lateral_move = pg.time.get_ticks()
         if self.move_down and self.piece.landed == False:

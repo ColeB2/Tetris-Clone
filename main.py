@@ -14,7 +14,6 @@ if __name__ == '__main__':
     state_dict = {
         'menu': Menu(),
         'game': Game(),
-        'level': Level(),
         'pause': Pause(),
         'gameover': Game_Over()
     }

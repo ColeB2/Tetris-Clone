@@ -20,10 +20,10 @@ class Menu(States):
         self.next = 'game'
 
     def cleanup(self):
-        print('cleaning up Menu state stuff')
+        pass
 
     def startup(self):
-        print('starting Menu state stuff')
+        pass
 
     def python_logo(self, screen):
         python_logo = pg.image.load(PYTHON_LOGO)
@@ -90,10 +90,10 @@ class Game_Over(States):
         self.next = 'game'
 
     def cleanup(self):
-        print('cleaning up Menu state stuff')
+        pass
 
     def startup(self):
-        print('starting Menu state stuff')
+        pass
 
     def get_event(self, event):
         if event.type == pg.KEYDOWN and event.key == pg.K_h:
@@ -143,10 +143,10 @@ class Pause(States):
 
 
     def cleanup(self):
-        print('cleaning up Pause state stuff')
+        pass
 
     def startup(self):
-        print('starting Pause state stuff')
+        pass
 
 
     def get_event(self, event):
