@@ -184,6 +184,7 @@ class Game(States):
         self.next_piece = Piece(vitals=random.choice(self.shape_list),
                                 board_obj=self.board)
         self.piece.spawn_piece()
+        self.down_freq = SPEED[self.board.level]
         self.game_over = False
 
     def game_logic(self):
