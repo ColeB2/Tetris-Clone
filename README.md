@@ -3,7 +3,7 @@
 A clone of the Alexey Pajitnov game, Tetris.
 
 # Technologies
-Written in Python 3.6
+Written in Python 3.6  
 Using Pygame 1.9.3
 
 # Acknowledgements
