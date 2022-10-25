@@ -184,7 +184,13 @@ class Game(States):
         self.next_piece = Piece(vitals=random.choice(self.shape_list),
                                 board_obj=self.board)
         self.piece.spawn_piece()
+        self.dt_last_down_move = pg.time.get_ticks()
         self.down_freq = SPEED[self.board.level]
+        self.down_move_frequency = self.down_freq
+
+        self.move_left = False
+        self.move_right = False
+        self.move_down = False
         self.game_over = False
 
     def game_logic(self):
