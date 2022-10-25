@@ -314,6 +314,7 @@ class Board:
             for block in self.board_state[row]:
                 block.state = 0
         self.lines_cleared = 0
+        self.level = self.start_level
         self.points = 0
 
     def handle_level(self):
